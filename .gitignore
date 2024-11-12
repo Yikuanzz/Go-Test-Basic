@@ -2,6 +2,9 @@
 .DS_Store
 output/
 
+# Database files
+data/
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
