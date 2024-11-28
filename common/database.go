@@ -1,7 +1,17 @@
 package common
 
 import (
+	"context"
 	"go-test-basic/model"
+	"log"
+	"path/filepath"
+	"testing"
+
+	sqle "github.com/dolthub/go-mysql-server"
+	"github.com/dolthub/go-mysql-server/memory"
+	"github.com/dolthub/go-mysql-server/server"
+	"github.com/testcontainers/testcontainers-go"
+	cmysql "github.com/testcontainers/testcontainers-go/modules/mysql"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -33,4 +43,56 @@ func NewDB() *gorm.DB {
 
 func InitDB() {
 	gloablDB = NewDB()
+}
+
+func InitTestDB(t *testing.T) {
+	db := memory.NewDatabase("hello")
+	pro := memory.NewDBProvider(db)
+	engine := sqle.NewDefault(pro)
+
+	config := server.Config{
+		Protocol: "tcp",
+		Address:  "localhost:3306",
+	}
+	s, err := server.NewServer(config, engine, memory.NewSessionBuilder(pro), nil)
+	if err != nil {
+		panic(err)
+	}
+	go func() {
+		if err = s.Start(); err != nil {
+			panic(err)
+		}
+	}()
+
+	gloablDB = NewDB()
+
+	t.Cleanup(func() {
+		gloablDB = nil
+		if err = s.Close(); err != nil {
+			panic(err)
+		}
+	})
+}
+
+func InitTestDBWithContainer(t *testing.T) {
+	ctx := context.Background()
+
+	mysqlContainer, err := cmysql.Run(ctx,
+		"mysql:8.0.36",
+		cmysql.WithConfigFile(filepath.Join("testdata", "my_8.cnf")),
+		cmysql.WithDatabase("foo"),
+		cmysql.WithUsername("root"),
+		cmysql.WithPassword("password"),
+		cmysql.WithScripts(filepath.Join("testdata", "schema.sql")),
+	)
+	defer func() {
+		if err := testcontainers.TerminateContainer(mysqlContainer); err != nil {
+			log.Printf("failed to terminate container: %s", err)
+		}
+	}()
+	if err != nil {
+		log.Printf("failed to start container: %s", err)
+		return
+	}
+
 }

@@ -112,3 +112,17 @@ GORM 利用反射机制实现了以下功能：
 - **将数据库记录映射到结构体字段**：通过 `reflect.Value.FieldByName` 和 `reflect.Value.Set`。
 
 这些功能使得 GORM 能够自动处理数据库记录与 Go 结构体之间的映射，简化了开发者的编码工作。
+
+## 测试的模拟
+
+### 方案一：模拟实例
+
+如果我们的某些函数测试依赖数据库，进行测试的时候，我们可以通过一些加载到内存的数据库来进行测试，这样就不用依赖外部的数据库环境了。
+
+例如，我们可以通过 [go-msyql-server](https://github.com/dolthub/go-mysql-server) 来进行测试。
+
+### 方案二：
+
+因为有些依赖很难轻松地在内存中进行模拟，所以通过容器化来模拟数据库环境是一个更好的选择。
+
+例如，我们可以通过 [Testcontaniers](https://golang.testcontainers.org/quickstart/) 来进行测试。
