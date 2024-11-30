@@ -24,6 +24,13 @@ func CreateItem(c *gin.Context) {
 		return
 	}
 
+	// To test
+	// config := configService.GetConfig()
+	// if len(req.Name) > config.MaxLength {
+	// 	c.JSON(400, gin.H{"error": "Name is too long"})
+	// 	return
+	// }
+
 	item := &model.Item{
 		Name:        req.Name,
 		Description: req.Description,

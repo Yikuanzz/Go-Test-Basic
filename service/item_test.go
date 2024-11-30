@@ -8,11 +8,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestMain(m *testing.M) {
+	// Initialize
+	common.SetEnv()
+	m.Run()
+	// Cleanup
+	common.TeardownEnv()
+}
+
 func TestCreateItem(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
-		common.InitTestDB(t)
-
+		// common.InitTestDBWithContainer(t)
+		// common.InitTestDB(t)
+		common.InitTestDBTwo(t)
 		item := &model.Item{
 			Name:        "test name",
 			Description: "test desc",
@@ -30,8 +39,9 @@ func TestCreateItem(t *testing.T) {
 	})
 
 	t.Run("duplicate", func(t *testing.T) {
-		common.InitTestDB(t)
-
+		// common.InitTestDBWithContainer(t)
+		// common.InitTestDB(t)
+		common.InitTestDBTwo(t)
 		item := &model.Item{
 			Name:        "test name",
 			Description: "test desc",
